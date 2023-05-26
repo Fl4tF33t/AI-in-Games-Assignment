@@ -131,10 +131,23 @@ public class AgentController : MonoBehaviour
         Vector3 moveableBoxTargetPos = moveableBoxTarget.transform.position;
         Vector3 direction = moveableBoxTargetPos - moveableBoxPos;
 
-        navMeshAgent.SetDestination(moveableBoxPos + -direction.normalized);
+        navMeshAgent.destination  = moveableBoxPos + -direction.normalized;
+        //StartCoroutine(AdjustDestinationPoint());
+        
+        AgentState = State.Walking;
+        //navMeshAgent.destination = pushingPos;
 
         MoveableBox moveableBoxScript = moveableBox.GetComponent<MoveableBox>();
     }
+
+    private IEnumerator AdjustDestinationPoint()
+    {
+        yield return new WaitForSeconds(1.5f);
+        Debug.Log(navMeshAgent.path.corners[navMeshAgent.path.corners.Length - 1]);
+        navMeshAgent.destination = navMeshAgent.path.corners[navMeshAgent.path.corners.Length - 1];
+    }
+
+    
 
     private int CalculateNextValidPath()
     {
@@ -172,7 +185,7 @@ public class AgentController : MonoBehaviour
         return collectableIndex;
     }
 
-    private void ArrivedToDestination()
+    private bool ArrivedToDestination()
     {
         //Checks that the agent has arrrived, sends a notification that it is idle
         if (!navMeshAgent.pathPending)
@@ -183,12 +196,15 @@ public class AgentController : MonoBehaviour
                 {
                     if (AgentState == State.Walking)
                     {
-                        AgentState = State.Collecting;
-                        Destroy(collectablesArray[FindClosestCollectableIndex()]);
+                        return true;
                     }
+                    else return false;
                 }
+                else return false;
             }
+            else return false;
         }
+        else return false;
     }
 
     private int FindClosestCollectableIndex()
@@ -254,7 +270,19 @@ public class AgentController : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        ArrivedToDestination();
+        if (ArrivedToDestination())
+        {
+            Debug.Log("Arrived");  
+            if (CheckIfCanCollect(FindClosestCollectableIndex()) && CheckIfPathIsValid(FindClosestCollectableIndex()))
+            {
+                AgentState = State.Collecting;
+                Destroy(collectablesArray[FindClosestCollectableIndex()]);
+            }
+            else
+            {
+                Debug.Log("Reached pushing obj");
+            }
+        }
         if(Input.GetMouseButtonDown(0))
         {
             navMeshAgent.areaMask = 5;

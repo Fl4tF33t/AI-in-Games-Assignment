@@ -718,7 +718,7 @@ NavMeshObstacle:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 210073223}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
   m_Extents: {x: 0.5, y: 0.5, z: 0.5}
@@ -6416,10 +6416,22 @@ PrefabInstance:
       propertyPath: m_WalkableMask
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3470193807865451129, guid: f3365ef49688bb74b8027e48bde07e4a, type: 3}
+      propertyPath: m_StoppingDistance
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3777224131871666819, guid: f3365ef49688bb74b8027e48bde07e4a, type: 3}
       propertyPath: moveable
       value: 
       objectReference: {fileID: 210073223}
+    - target: {fileID: 3777224131871666819, guid: f3365ef49688bb74b8027e48bde07e4a, type: 3}
+      propertyPath: moveableBox
+      value: 
+      objectReference: {fileID: 210073223}
+    - target: {fileID: 3777224131871666819, guid: f3365ef49688bb74b8027e48bde07e4a, type: 3}
+      propertyPath: moveableBoxTarget
+      value: 
+      objectReference: {fileID: 556137213}
     - target: {fileID: 5096098244969466698, guid: f3365ef49688bb74b8027e48bde07e4a, type: 3}
       propertyPath: m_IsActive
       value: 0
