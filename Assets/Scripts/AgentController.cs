@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System;
+using UnityEngine.UIElements;
+
 public class AgentController : MonoBehaviour
 {
     public event EventHandler<OnAgentStateEventArgs> OnAgentState;
@@ -45,6 +47,12 @@ public class AgentController : MonoBehaviour
     //subscribe to animation finished
     private CharacterVisuals characterVisuals;
 
+    //Box moving logic
+    [SerializeField]
+    private GameObject moveableBox;
+    [SerializeField]
+    private GameObject moveableBoxTarget;
+
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -58,6 +66,7 @@ public class AgentController : MonoBehaviour
         collectablesArray = GameObject.FindGameObjectsWithTag("Collectable");
         AgentState = State.Idle;
         FindNextCollectable();
+        
     }
 
 
@@ -93,16 +102,38 @@ public class AgentController : MonoBehaviour
                     {
                         Debug.Log("There are still collectables out there, but no valid path");
                         AgentState = State.Idle;
+                        GoMoveBox();     
                     }
                 }
                 else
+                {
                     Debug.Log("No valid paths, cause there are no collectables");
                     AgentState = State.Idle;
+                }
+                    
             }
         }
-        else 
+        else
+        {
             Debug.Log("No valid paths, cause there are no collectable");
             AgentState = State.Idle;
+        }
+            
+    }
+
+    private void GoMoveBox()
+    {
+        if(moveableBox == null || moveableBoxTarget == null)
+        {
+            return;
+        }
+        Vector3 moveableBoxPos = moveableBox.transform.position;
+        Vector3 moveableBoxTargetPos = moveableBoxTarget.transform.position;
+        Vector3 direction = moveableBoxTargetPos - moveableBoxPos;
+
+        navMeshAgent.SetDestination(moveableBoxPos + -direction.normalized);
+
+        MoveableBox moveableBoxScript = moveableBox.GetComponent<MoveableBox>();
     }
 
     private int CalculateNextValidPath()
@@ -224,6 +255,10 @@ public class AgentController : MonoBehaviour
     private void FixedUpdate()
     {
         ArrivedToDestination();
-        //-1 is everything for areamask
+        if(Input.GetMouseButtonDown(0))
+        {
+            navMeshAgent.areaMask = 5;
+            FindNextCollectable() ;
+        }
     }
 }
