@@ -100,9 +100,11 @@ public class AgentController : MonoBehaviour
                     AgentState = State.Idle;
             }
         }
-        else 
+        else
+        {   
             Debug.Log("No valid paths, cause there are no collectable");
             AgentState = State.Idle;
+        }
     }
 
     private int CalculateNextValidPath()
