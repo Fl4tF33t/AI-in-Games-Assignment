@@ -18,7 +18,6 @@ public class AgentController : MonoBehaviour
         Collecting,
     }
 
-    [SerializeField]
     private State agentState;
     public State AgentState 
     {
