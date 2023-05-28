@@ -65,10 +65,8 @@ public class AgentController : MonoBehaviour
         characterVisuals.OnAnimationCompleted += CharacterVisuals_OnAnimationCompleted;
         collectablesArray = GameObject.FindGameObjectsWithTag("Collectable");
         AgentState = State.Idle;
-        FindNextCollectable();
-        
+        FindNextCollectable();      
     }
-
 
     private void FindNextCollectable()
     {
@@ -84,7 +82,7 @@ public class AgentController : MonoBehaviour
         {
             if (CheckIfPathIsValid(FindClosestCollectableIndex()))
             {
-                Debug.Log("closest path is valid, lets go");
+                Debug.Log("Closest collectable in range being collected");
                 navMeshAgent.destination = collectablesArray[FindClosestCollectableIndex()].transform.position;
                 AgentState = State.Walking;
             }
@@ -94,23 +92,21 @@ public class AgentController : MonoBehaviour
                 {
                     if (CheckIfPathIsValid(CalculateNextValidPath()))
                     {
-                        Debug.Log("There is a valid path to take");
+                        Debug.Log("There is a valid path to take for the next closest collectable");
                         navMeshAgent.destination = collectablesArray[CalculateNextValidPath()].transform.position;
                         AgentState = State.Walking;
                     }
                     else
                     {
-                        Debug.Log("There are still collectables out there, but no valid path");
-                        AgentState = State.Idle;
-                        GoMoveBox();     
+                        Debug.Log("Collectable present with no vaalid path, perform something else");
+                        NextCollectableInNonValidPath();
                     }
                 }
                 else
                 {
                     Debug.Log("No valid paths, cause there are no collectables");
                     AgentState = State.Idle;
-                }
-                    
+                }           
             }
         }
         else
@@ -121,33 +117,78 @@ public class AgentController : MonoBehaviour
             
     }
 
-    private void GoMoveBox()
+    private void NextCollectableInNonValidPath()
     {
-        if(moveableBox == null || moveableBoxTarget == null)
+        if (moveableBox == null || moveableBoxTarget == null)
         {
+            AgentState = State.Idle;
             return;
         }
+        else
+        {
+            AgentState = State.Walking;
+            navMeshAgent.destination = moveableBox.transform.position - FindMoveableLocationNormalized();
+        }
+    }
+    
+
+    private Vector3 FindMoveableLocationNormalized()
+    {
         Vector3 moveableBoxPos = moveableBox.transform.position;
         Vector3 moveableBoxTargetPos = moveableBoxTarget.transform.position;
         Vector3 direction = moveableBoxTargetPos - moveableBoxPos;
 
-        navMeshAgent.destination  = moveableBoxPos + -direction.normalized;
-        //StartCoroutine(AdjustDestinationPoint());
-        
-        AgentState = State.Walking;
-        //navMeshAgent.destination = pushingPos;
-
-        MoveableBox moveableBoxScript = moveableBox.GetComponent<MoveableBox>();
+        return direction.normalized;
     }
 
-    private IEnumerator AdjustDestinationPoint()
+    private void MovingMoveable()
     {
-        yield return new WaitForSeconds(1.5f);
-        Debug.Log(navMeshAgent.path.corners[navMeshAgent.path.corners.Length - 1]);
-        navMeshAgent.destination = navMeshAgent.path.corners[navMeshAgent.path.corners.Length - 1];
+        MoveableBox moveableBoxScript = moveableBox.GetComponent<MoveableBox>();
+        if (moveableBoxScript != null)
+        {
+            moveableBoxScript.OnTriggerReached += MoveableBoxScript_OnTriggerReached;
+            moveableBoxScript.Target((FindMoveableLocationNormalized()));
+        }
     }
 
-    
+    private void MoveableBoxScript_OnTriggerReached(object sender, EventArgs e)
+    {
+        navMeshAgent.areaMask = 5;
+        FindNextCollectable();
+    }
+
+    private int FindClosestCollectableIndex()
+    {
+        //Finding the distance of collectables and comparing, setting the index of the closest collectable
+        float closestCollectableDistance = float.MaxValue;
+
+        for (int i = 0; i < collectablesArray.Length; i++)
+        {
+            //skips the deleted GameObjects in the array
+            if (collectablesArray[i] == null)
+            {
+                continue;
+            }
+
+            //adds the distance for the path using from vertex-vertex path.corners
+            if (NavMesh.CalculatePath(transform.position, collectablesArray[i].transform.position, navMeshAgent.areaMask, path))
+            {
+                float distance = Vector3.Distance(transform.position, path.corners[0]);
+
+                for (int cornerPoints = 1; cornerPoints < path.corners.Length; cornerPoints++)
+                {
+                    distance += Vector3.Distance(path.corners[cornerPoints - 1], path.corners[cornerPoints]);
+                }
+
+                if (distance < closestCollectableDistance)
+                {
+                    closestCollectableDistance = distance;
+                    collectableIndex = i;   
+                } 
+            }
+        }
+        return collectableIndex;
+    }
 
     private int CalculateNextValidPath()
     {
@@ -207,38 +248,6 @@ public class AgentController : MonoBehaviour
         else return false;
     }
 
-    private int FindClosestCollectableIndex()
-    {
-        //Finding the distance of collectables and comparing, setting the index of the closest collectable
-        float closestCollectableDistance = float.MaxValue;
-
-        for (int i = 0; i < collectablesArray.Length; i++)
-        {
-            //skips the deleted GameObjects in the array
-            if (collectablesArray[i] == null)
-            {
-                continue;
-            }
-
-            //adds the distance for the path using from vertex-vertex path.corners
-            if (NavMesh.CalculatePath(transform.position, collectablesArray[i].transform.position, navMeshAgent.areaMask, path))
-            {
-                float distance = Vector3.Distance(transform.position, path.corners[0]);
-
-                for (int cornerPoints = 1; cornerPoints < path.corners.Length; cornerPoints++)
-                {
-                    distance += Vector3.Distance(path.corners[cornerPoints - 1], path.corners[cornerPoints]);
-                }
-
-                if (distance < closestCollectableDistance)
-                {
-                    closestCollectableDistance = distance;
-                    collectableIndex = i;   
-                } 
-            }
-        }
-        return collectableIndex;
-    }
 
     //unity animation event after the crouch animation has finished
     private void CharacterVisuals_OnAnimationCompleted(object sender, EventArgs e)
@@ -272,21 +281,21 @@ public class AgentController : MonoBehaviour
     {
         if (ArrivedToDestination())
         {
-            Debug.Log("Arrived");  
+            Debug.Log("arrivedd");
             if (CheckIfCanCollect(FindClosestCollectableIndex()) && CheckIfPathIsValid(FindClosestCollectableIndex()))
             {
                 AgentState = State.Collecting;
                 Destroy(collectablesArray[FindClosestCollectableIndex()]);
             }
+            else if(navMeshAgent.areaMask == 1)
+            {
+                AgentState = State.Idle;
+                MovingMoveable();    
+            }
             else
             {
-                Debug.Log("Reached pushing obj");
+                AgentState = State.Idle;
             }
-        }
-        if(Input.GetMouseButtonDown(0))
-        {
-            navMeshAgent.areaMask = 5;
-            FindNextCollectable() ;
         }
     }
 }
