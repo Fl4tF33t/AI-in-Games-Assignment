@@ -21,7 +21,7 @@ public class MoveableBox : MonoBehaviour
     void FixedUpdate()
     {
         MoveBoxToTarget(Target(target) * speed);
-        if(transform.position.y < 1 && target != Vector3.zero)
+        if(transform.position.y < 1.2 && target != Vector3.zero)
         {
             target = Vector3.zero;
             OnTriggerReached?.Invoke(this, EventArgs.Empty);

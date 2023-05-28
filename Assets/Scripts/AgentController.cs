@@ -52,6 +52,8 @@ public class AgentController : MonoBehaviour
     private GameObject moveableBox;
     [SerializeField]
     private GameObject moveableBoxTarget;
+    [SerializeField]
+    private GameObject navMeshLink; 
 
     private void Awake()
     {
@@ -146,14 +148,15 @@ public class AgentController : MonoBehaviour
         MoveableBox moveableBoxScript = moveableBox.GetComponent<MoveableBox>();
         if (moveableBoxScript != null)
         {
-            moveableBoxScript.OnTriggerReached += MoveableBoxScript_OnTriggerReached;
             moveableBoxScript.Target((FindMoveableLocationNormalized()));
+            moveableBoxScript.OnTriggerReached += MoveableBoxScript_OnTriggerReached;
         }
     }
 
     private void MoveableBoxScript_OnTriggerReached(object sender, EventArgs e)
     {
         navMeshAgent.areaMask = 5;
+        navMeshLink.gameObject.SetActive(true);
         FindNextCollectable();
     }
 

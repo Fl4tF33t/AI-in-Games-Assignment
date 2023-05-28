@@ -990,7 +990,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &320438186
 Transform:
   m_ObjectHideFlags: 0
@@ -1023,7 +1023,7 @@ MonoBehaviour:
   m_EndPoint: {x: 0, y: 1.0034107, z: 1.0068855}
   m_Width: 2.74575
   m_CostModifier: -1
-  m_Bidirectional: 0
+  m_Bidirectional: 1
   m_AutoUpdatePosition: 0
   m_Area: 2
 --- !u!1 &349394795
@@ -6469,6 +6469,10 @@ PrefabInstance:
       propertyPath: moveableBox
       value: 
       objectReference: {fileID: 210073223}
+    - target: {fileID: 3777224131871666819, guid: f3365ef49688bb74b8027e48bde07e4a, type: 3}
+      propertyPath: navMeshLink
+      value: 
+      objectReference: {fileID: 320438184}
     - target: {fileID: 3777224131871666819, guid: f3365ef49688bb74b8027e48bde07e4a, type: 3}
       propertyPath: moveableBoxTarget
       value: 
