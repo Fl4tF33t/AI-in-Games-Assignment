@@ -7,34 +7,38 @@ public class CharacterVisuals : MonoBehaviour
 {
     public event EventHandler OnAnimationCompleted;
 
-    AgentController agentController;
+    BaseAgent baseAgent;
     Animator animator;
 
     const string IS_WALKING = "isWalking";
 
     private void Awake()
     {
-        agentController = GetComponentInParent<AgentController>();
+        baseAgent = GetComponentInParent<BaseAgent>();
         animator = GetComponent<Animator>();
     }
     void Start()
     {
-        agentController.OnAgentState += AgentController_OnAgentState;
+        baseAgent.OnAgentState += baseAgent_OnAgentState;
     }
 
-    private void AgentController_OnAgentState(object sender, AgentController.OnAgentStateEventArgs e)
+    private void baseAgent_OnAgentState(object sender, BaseAgent.OnAgentStateEventArgs e)
     {
-        if(e.agentState == AgentController.State.Idle)
+        if(e.agentState == BaseAgent.State.Idle)
         {
             animator.SetBool(IS_WALKING, false);
         }
-        if (e.agentState == AgentController.State.Walking)
+        if (e.agentState == BaseAgent.State.Walking)
         {
             animator.SetBool(IS_WALKING, true);
         }
-        if (e.agentState == AgentController.State.Collecting)
+        if (e.agentState == BaseAgent.State.Collecting)
         {
             animator.SetTrigger("isCollecting");
+        }
+        if (e.agentState == BaseAgent.State.WoodChopping)
+        {
+            animator.SetBool("isChopping", true);
         }
     }
 
@@ -43,7 +47,10 @@ public class CharacterVisuals : MonoBehaviour
         OnAnimationCompleted?.Invoke(this, EventArgs.Empty);
     }
 
-
+    public void OnChopAnimationFinished()
+    {
+        OnAnimationCompleted?.Invoke(this, EventArgs.Empty);
+    }
 
     // Update is called once per frame
     void Update()

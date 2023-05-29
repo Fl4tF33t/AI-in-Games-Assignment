@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6104775777967513242}
   - component: {fileID: 3432483376126388203}
   - component: {fileID: 6589789838568667723}
+  - component: {fileID: -49084549328528530}
   m_Layer: 0
   m_Name: AgentSpawner
   m_TagString: Untagged
@@ -83,3 +84,16 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-49084549328528530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2469762313063509769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70cb1a7d8644c85438f1e2bfaed9a2b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentPrefab: {fileID: 7503365770807594190, guid: c0062b93076a25b41997d9c0a45fee2b, type: 3}

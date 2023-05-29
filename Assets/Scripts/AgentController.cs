@@ -5,47 +5,10 @@ using UnityEngine.AI;
 using System;
 using UnityEngine.UIElements;
 
-public class AgentController : MonoBehaviour
+public class AgentController : BaseAgent
 {
-    public event EventHandler<OnAgentStateEventArgs> OnAgentState;
-    public class OnAgentStateEventArgs : EventArgs
-    {
-        public State agentState;
-    }
-
-    public enum State
-    {
-        Idle,
-        Walking, 
-        Collecting,
-    }
-
-    private State agentState;
-    public State AgentState 
-    {
-        get 
-        { 
-            return agentState; 
-        }
-        private set 
-        { 
-            agentState = value; 
-            OnAgentState?.Invoke(this, new OnAgentStateEventArgs
-            {
-                agentState = value
-            });
-        }
-    }
-
-
     //Agent movement and Logic
-    private NavMeshAgent navMeshAgent;
     private NavMeshPath path;
-    private GameObject[] collectablesArray;
-    private int collectableIndex = 0;
-
-    //subscribe to animation finished
-    private CharacterVisuals characterVisuals;
 
     //Box moving logic
     [SerializeField]
@@ -65,7 +28,7 @@ public class AgentController : MonoBehaviour
     private void Start()
     {
         characterVisuals.OnAnimationCompleted += CharacterVisuals_OnAnimationCompleted;
-        collectablesArray = GameObject.FindGameObjectsWithTag("Collectable");
+        FindTargetsAndSetIndex("Collectable", 0);
         AgentState = State.Idle;
         FindNextCollectable();      
     }
@@ -73,7 +36,7 @@ public class AgentController : MonoBehaviour
     private void FindNextCollectable()
     {
         //Check if there are any points to go to 
-        if(collectablesArray.Length == 0)
+        if(targetArray.Length == 0)
         {
             AgentState = State.Idle;
             return;
@@ -85,7 +48,7 @@ public class AgentController : MonoBehaviour
             if (CheckIfPathIsValid(FindClosestCollectableIndex()))
             {
                 Debug.Log("Closest collectable in range being collected");
-                navMeshAgent.destination = collectablesArray[FindClosestCollectableIndex()].transform.position;
+                navMeshAgent.destination = targetArray[FindClosestCollectableIndex()].transform.position;
                 AgentState = State.Walking;
             }
             else
@@ -95,7 +58,7 @@ public class AgentController : MonoBehaviour
                     if (CheckIfPathIsValid(CalculateNextValidPath()))
                     {
                         Debug.Log("There is a valid path to take for the next closest collectable");
-                        navMeshAgent.destination = collectablesArray[CalculateNextValidPath()].transform.position;
+                        navMeshAgent.destination = targetArray[CalculateNextValidPath()].transform.position;
                         AgentState = State.Walking;
                     }
                     else
@@ -165,16 +128,16 @@ public class AgentController : MonoBehaviour
         //Finding the distance of collectables and comparing, setting the index of the closest collectable
         float closestCollectableDistance = float.MaxValue;
 
-        for (int i = 0; i < collectablesArray.Length; i++)
+        for (int i = 0; i < targetArray.Length; i++)
         {
             //skips the deleted GameObjects in the array
-            if (collectablesArray[i] == null)
+            if (targetArray[i] == null)
             {
                 continue;
             }
 
             //adds the distance for the path using from vertex-vertex path.corners
-            if (NavMesh.CalculatePath(transform.position, collectablesArray[i].transform.position, navMeshAgent.areaMask, path))
+            if (NavMesh.CalculatePath(transform.position, targetArray[i].transform.position, navMeshAgent.areaMask, path))
             {
                 float distance = Vector3.Distance(transform.position, path.corners[0]);
 
@@ -186,11 +149,11 @@ public class AgentController : MonoBehaviour
                 if (distance < closestCollectableDistance)
                 {
                     closestCollectableDistance = distance;
-                    collectableIndex = i;   
+                    targetIndex = i;   
                 } 
             }
         }
-        return collectableIndex;
+        return targetIndex;
     }
 
     private int CalculateNextValidPath()
@@ -198,16 +161,16 @@ public class AgentController : MonoBehaviour
         //Finding the distance of collectables and comparing, setting the index of the closest collectable
         float closestCollectableDistance = float.MaxValue;
 
-        for (int i = 0; i < collectablesArray.Length; i++)
+        for (int i = 0; i < targetArray.Length; i++)
         {
             //skips the deleted GameObjects in the array
-            if (collectablesArray[i] == null)
+            if (targetArray[i] == null)
             {
                 continue;
             }
 
             //adds the distance for the path using from vertex-vertex path.corners
-            if (NavMesh.CalculatePath(transform.position, collectablesArray[i].transform.position, navMeshAgent.areaMask, path))
+            if (NavMesh.CalculatePath(transform.position, targetArray[i].transform.position, navMeshAgent.areaMask, path))
             {
                 if (CheckIfPathIsValid(i))
                 {
@@ -221,36 +184,13 @@ public class AgentController : MonoBehaviour
                     if (distance < closestCollectableDistance)
                     {
                         closestCollectableDistance = distance;
-                        collectableIndex = i;
+                        targetIndex = i;
                     } 
                 }
             }
         }
-        return collectableIndex;
+        return targetIndex;
     }
-
-    private bool ArrivedToDestination()
-    {
-        //Checks that the agent has arrrived, sends a notification that it is idle
-        if (!navMeshAgent.pathPending)
-        {
-            if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
-            {
-                if (navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0f)
-                {
-                    if (AgentState == State.Walking)
-                    {
-                        return true;
-                    }
-                    else return false;
-                }
-                else return false;
-            }
-            else return false;
-        }
-        else return false;
-    }
-
 
     //unity animation event after the crouch animation has finished
     private void CharacterVisuals_OnAnimationCompleted(object sender, EventArgs e)
@@ -266,7 +206,7 @@ public class AgentController : MonoBehaviour
             return false;
         }
 
-        navMeshAgent.CalculatePath(collectablesArray[collectableIndex].transform.position, path);
+        navMeshAgent.CalculatePath(targetArray[collectableIndex].transform.position, path);
         if (path.status == NavMeshPathStatus.PathComplete)
         {
             return true;
@@ -276,7 +216,7 @@ public class AgentController : MonoBehaviour
 
     private bool CheckIfCanCollect(int collectableIndex)
     {
-        return collectablesArray[collectableIndex] != null;   
+        return targetArray[collectableIndex] != null;   
     }
 
     // Update is called once per frame
@@ -288,7 +228,7 @@ public class AgentController : MonoBehaviour
             if (CheckIfCanCollect(FindClosestCollectableIndex()) && CheckIfPathIsValid(FindClosestCollectableIndex()))
             {
                 AgentState = State.Collecting;
-                Destroy(collectablesArray[FindClosestCollectableIndex()]);
+                Destroy(targetArray[FindClosestCollectableIndex()]);
             }
             else if(navMeshAgent.areaMask == 1)
             {

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2925305569143046858}
   - component: {fileID: 4372381873594275300}
   - component: {fileID: 8393968284716970338}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,9 +94,10 @@ GameObject:
   - component: {fileID: 6008383609523536432}
   - component: {fileID: 7263684538300173717}
   - component: {fileID: 4839467254052682079}
-  m_Layer: 0
+  - component: {fileID: 3365503669141292782}
+  m_Layer: 7
   m_Name: Tree
-  m_TagString: Untagged
+  m_TagString: Tree
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -167,3 +168,15 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3365503669141292782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6352821657444178058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e687636267ad64287a328b1fbb1d17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

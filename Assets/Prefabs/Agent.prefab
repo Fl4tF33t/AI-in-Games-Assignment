@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 7911177389892442368}
   m_Layer: 6
   m_Name: Agent
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -101,8 +101,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df3caf86cfff201478ca2ff90a949fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collectablesArray: []
-  collectableIndex: 0
+  health: 100
+  moveableBox: {fileID: 0}
+  moveableBoxTarget: {fileID: 0}
+  navMeshLink: {fileID: 0}
 --- !u!114 &7911177389892442368
 MonoBehaviour:
   m_ObjectHideFlags: 0
