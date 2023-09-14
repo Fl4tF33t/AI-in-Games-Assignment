@@ -36,6 +36,7 @@ public class CharacterVisuals : MonoBehaviour
         {
             animator.SetTrigger("isCollecting");
         }
+    
     }
 
     public void OnCrouchAnimationFinished()
